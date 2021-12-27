@@ -1,5 +1,6 @@
 package se.kth.najiib.databasfinversion.modelVC;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -23,15 +24,16 @@ public interface BooksDbInterface {
      * @return true on successful connection.
      */
     public boolean connect(String database) throws BooksDbException;
-
     public void disconnect() throws BooksDbException;
+    public List<Book> searchBooksByTitle(String searchTitle) throws BooksDbException;
+    public List<Book> searchBooksByISBN(String searchISBN) throws BooksDbException;
+    public List<Book> searchBooksByGenre(String searchGenre) throws BooksDbException;
+    public List<Book> searchBooksByRating(int searchRating) throws BooksDbException, SQLException;
+    public List<Book> searchBookByAuthor(String searchAuthor) throws BooksDbException;
+    public void addBookToDb(Book book) throws BooksDbException, SQLException;
+    public void addAuthorToDb(Author author) throws BooksDbException, SQLException;
 
-    public List<Book> searchBooksByTitle(String title) throws BooksDbException;
-    public List<Book> searchBooksByISBN(String ISBN) throws BooksDbException;
-    public List<Book> searchBooksByGenre(String Genre) throws BooksDbException;
-    public List<Book> searchBooksByRating(int Genre) throws BooksDbException;
 
-    public void addBook(Book book);
 
     // TODO: Add abstract methods for all inserts, deletes and queries
     // mentioned in the instructions for the assignement.

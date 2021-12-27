@@ -7,7 +7,6 @@ package se.kth.najiib.databasfinversion.modelVC;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,35 +19,34 @@ import java.util.List;
  */
 public class BooksDbImpl implements BooksDbInterface {
 
-    private final List<Book> books;
+   private List<Book> books;
     private Connection con;
+    private PreparedStatement preStmt;
+    private ResultSet rts;
 
     public BooksDbImpl() {
-       // books = Arrays.asList(DATA);
+        //books = Arrays.asList(DATA);
         books=new ArrayList<>();
         con=null;
+        preStmt=null;
+        rts=null;
     }
 
 
     @Override
     public boolean connect(String database) throws BooksDbException {
-        String user = "root";// user name
+        String user = "root"; // user name
         String pwd = "123123asd"; // password
-       // String database = "dblibrary"; // the name of the specific database
         String server = "jdbc:mysql://localhost:3306/" + database;
 
 
         try {
             con = DriverManager.getConnection(server, user, pwd);
             System.out.println("Connection Established!");
-
-
-            //executeQuery(con, "SELECT * FROM dblibrary.book");
             return true;
-        } catch (SQLException e) {
-            System.out.println("ERROR "+ e.getMessage());
+        } catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
         }
-        return false;
     }
 
 
@@ -58,75 +56,133 @@ public class BooksDbImpl implements BooksDbInterface {
         try{
             con.close();
             System.out.println("Disconnected");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Rere");
+        } catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
         }
     }
 
     @Override
-    public List<Book> searchBooksByTitle(String searchTitle)
-            throws BooksDbException {
+    public List<Book> searchBooksByTitle(String searchTitle) throws BooksDbException {
         List<Book> result = new ArrayList<>();
         searchTitle = searchTitle.toLowerCase();
-        ResultSet rs;
         try{
-            String query = "SELECT * FROM Book " + "WHERE title LIKE '%"+searchTitle+"%'";
-            PreparedStatement stmt = con.prepareStatement(query);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                /*System.out.println("IN WHILELOOP");
-                System.out.println(""+ rs.getString("title"));
-                System.out.println(""+ rs.getString("ISBN"));
-                System.out.println(""+ rs.getString("genre")); TA BORT SENARE!!!*/
-                String title1 = rs.getString("title");
-                String isbn = rs.getString("ISBN");
-                String genre = rs.getString("genre");
-                int rating=rs.getInt("rating");
+            String query = "SELECT * "+
+                    "FROM book " +
+                    "NATURAL JOIN writtenby " +
+                    "NATURAL JOIN author "+
+                    "WHERE book.title LIKE '%"+searchTitle+"%'";
+            preStmt = con.prepareStatement(query);
+             rts = preStmt.executeQuery();
+            while(rts.next()){
 
+                result.add(new Book(rts.getString("title"),
+                        rts.getString("ISBN"),
+                        Genre.valueOf( rts.getString("genre"))
+                        ,rts.getInt("Rating"),
+                        rts.getString("published"),
+                        new Author(rts.getString("authorId"),
+                                rts.getString("authorName"),
+                                rts.getString("dob"),
+                                rts.getString("ISBN"))));
 
-                result.add(new Book(title1, isbn, Genre.valueOf(genre),rating));
             }
-            //System.out.println("BYE");TA BORT SENARE!!!
-        }catch(SQLException e){
-            System.out.println("ERROR " + e.getMessage() + e.getErrorCode());
+        }catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
+        } finally {
+            try{
+                rts.close();
+
+            }
+            catch (SQLException e)
+            {
+                throw new BooksDbException(e.getMessage(),e);
+            }
 
         }
-        //System.out.println("BYE2"); TA BORT SENARE!!!
 
         return result;
-
     }
 
-    public List<Book> searchBooksByISBN(String searchIsbn)
-            throws BooksDbException{
+    public List<Book> searchBooksByISBN(String searchIsbn) throws BooksDbException{
+
+        ArrayList<Book> books = new ArrayList<>();
         List<Book> result = new ArrayList<>();
-        searchIsbn = searchIsbn.toLowerCase();
-        ResultSet rs;
+
+
+        // mock implementation
+        // NB! Your implementation should select the books matching
+        // the search string via a query with to a database.
+
         try{
-            String query = "SELECT * FROM Book " + "WHERE ISBN LIKE '%"+searchIsbn+"%'";
+
+
+            String query = "SELECT * "+
+                    "FROM book " +
+                    "NATURAL JOIN writtenby " +
+                    "NATURAL JOIN author "+
+                    "WHERE book.ISBN LIKE '%"+searchIsbn+"%'";
             PreparedStatement stmt = con.prepareStatement(query);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                /*System.out.println("IN WHILELOOP");
-                System.out.println(""+ rs.getString("title"));
-                System.out.println(""+ rs.getString("ISBN"));
-                System.out.println(""+ rs.getString("genre")); TA BORT SENARE!!!*/
-                String title1 = rs.getString("title");
-                String isbn = rs.getString("ISBN");
-                String genre = rs.getString("genre");
-                int rating=rs.getInt("rating");
-
-
-                result.add(new Book(title1, isbn, Genre.valueOf(genre),rating));
+            rts = stmt.executeQuery();
+            while(rts.next()){
+                result.add(new Book(rts.getString("title"),
+                        rts.getString("ISBN"),
+                        Genre.valueOf( rts.getString("genre"))
+                        ,rts.getInt("Rating"),
+                        rts.getString("published"),
+                        new Author(rts.getString("authorId"),
+                                rts.getString("authorName"),
+                                rts.getString("dob"),
+                                rts.getString("ISBN"))));
             }
-            //System.out.println("BYE");TA BORT SENARE!!!
-        }catch(SQLException e){
-            System.out.println("ERROR " + e.getMessage() + e.getErrorCode());
+        }catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
+        } finally {
+            try {
+                rts.close();
 
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Book> searchBookByAuthor(String searchAuthor) throws BooksDbException {
+        List<Book> result = new ArrayList<>();
+        try{
+            String query = "SELECT * "+
+                    "FROM book " +
+                    "NATURAL JOIN writtenby " +
+                    "NATURAL JOIN author "+
+                    "WHERE book.authorName LIKE '%"+searchAuthor+"%'";
+            preStmt = con.prepareStatement(query);
+            rts = preStmt.executeQuery();
+            while(rts.next()){
+                result.add(new Book(rts.getString("title"),
+                        rts.getString("ISBN"),
+                        Genre.valueOf( rts.getString("genre"))
+                        ,rts.getInt("Rating"),
+                        rts.getString("published"),
+                        new Author(rts.getString("authorId"),
+                                rts.getString("authorName"),
+                                rts.getString("dob"),
+                                rts.getString("ISBN"))));
+            }
+
+        }catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
+        } finally {
+            try {
+                rts.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
+
 
     @Override
     public List<Book> searchBooksByGenre(String searchGenre) throws BooksDbException {
@@ -135,75 +191,157 @@ public class BooksDbImpl implements BooksDbInterface {
 
         try
         {
-            String sql= "SELECT * FROM Book " + "WHERE Genre LIKE '%"+searchGenre+"%'";
-            PreparedStatement prestmt=con.prepareStatement(sql);
-            ResultSet rs= prestmt.executeQuery();
+            String query = "SELECT * "+
+                    "FROM book " +
+                    "NATURAL JOIN writtenby " +
+                    "NATURAL JOIN author "+
+                    "WHERE book.Genre LIKE '%"+searchGenre+"%'";
+            preStmt=con.prepareStatement(query);
+            rts= preStmt.executeQuery();
 
-            while(rs.next())
+            while(rts.next())
             {
-                String title=rs.getString("title");
-                String isbnq=rs.getString("ISBN");
-                String genree=rs.getString("Genre");
-                int betyg= rs.getInt("rating");
-                Book book=new Book(title,isbnq,Genre.valueOf(genree),betyg);
-                result.add(book);
+                result.add(new Book(rts.getString("title"),
+                        rts.getString("ISBN"),
+                        Genre.valueOf( rts.getString("genre")),
+                        rts.getInt("Rating"),
+                        rts.getString("published"),
+                        new Author(rts.getString("authorId"),
+                                rts.getString("authorName"),
+                                rts.getString("dob"),
+                                rts.getString("ISBN"))));
+
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("WRONG"+e.getMessage());
+        } catch(SQLException ex){
+            throw new BooksDbException(ex.getMessage(),ex);
+        } finally {
+            try {
+                rts.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
+
         return result;
     }
 
     @Override
-    public List<Book> searchBooksByRating(int searchRating) throws BooksDbException {
+    public List<Book> searchBooksByRating(int searchRating) throws BooksDbException,SQLException {
         List<Book> result = new ArrayList<>();
+        
 
-        ResultSet rs;
         try{
-            String query = "SELECT * FROM Book " + "WHERE rating LIKE '%"+searchRating+"%'";
+            String query = "SELECT * "+ "FROM book " + "NATURAL JOIN writtenby " + "NATURAL JOIN author "+ "WHERE book.Rating LIKE '%"+searchRating+"%'";
+
             PreparedStatement stmt = con.prepareStatement(query);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                /*System.out.println("IN WHILELOOP");
-                System.out.println(""+ rs.getString("title"));
-                System.out.println(""+ rs.getString("ISBN"));
-                System.out.println(""+ rs.getString("genre")); TA BORT SENARE!!!*/
-                String title1 = rs.getString("title");
-                String isbn = rs.getString("ISBN");
-                String genre = rs.getString("genre");
-                int rate=rs.getInt("rating");
+            rts = stmt.executeQuery();
+            while(rts.next()){
+                result.add(new Book(rts.getString("title"),
+                        rts.getString("ISBN"),
+                        Genre.valueOf( rts.getString("genre"))
+                        ,rts.getInt("Rating"),
+                        rts.getString("published"),
+                        new Author(rts.getString("authorId"),
+                                rts.getString("authorName"),
+                                rts.getString("dob"),
+                                rts.getString("ISBN"))));
 
 
-                result.add(new Book(title1, isbn, Genre.valueOf(genre),rate));
-            }
-            //System.out.println("BYE");TA BORT SENARE!!!
-        }catch(SQLException e){
-            System.out.println("ERROR " + e.getMessage() + e.getErrorCode());
+                }
+        }catch(SQLException ex){
+           throw new BooksDbException(ex.getMessage(),ex);
+        } finally {
+
+                rts.close();
 
         }
+
         return result;
     }
 
 
-    public void addBook(Book book)
-    {
-        try
+    @Override
+    public void addBookToDb(Book book) throws BooksDbException,SQLException {
+        if(book != null)
         {
-            String sql="INSERT INTO book(ISBN,Title,Genre,rating)"+ "VALUES(?,?,?,?)";
-            PreparedStatement preStmt=con.prepareStatement(sql);
-            preStmt.setString(1,book.getIsbn());
-            preStmt.setString(2,book.getTitle());
-            preStmt.setString(3,book.getGenre().toString());
-            preStmt.setString(4,Integer.toString(book.getRating()));
+            String sql = "";
+            String query1 = "";
 
-            preStmt.executeUpdate();
+            try {
 
-        }
-        catch (SQLException e)
-        {
-            System.out.println("WRONG "+ e.getMessage());
+                sql = "INSERT INTO book(ISBN, title, genre, Rating,authorID ,authorName, published,dob)" + "VALUES(?,?,?,?,?,?,?,?)";
+                con.setAutoCommit(false);
+                preStmt = con.prepareStatement(sql);
+                preStmt.setString(1, book.getIsbn());
+                preStmt.setString(2, book.getTitle());
+                preStmt.setString(3, book.getGenre().toString());
+                preStmt.setString(4, Integer.toString(book.getRating()));
+                preStmt.setString(5, book.getAuthor().getAuthorIDs());
+                preStmt.setString(6, book.getAuthor().getFullName());
+                preStmt.setString(7, book.getPublished());
+                preStmt.setString(8, book.getAuthor().getDob());
+                preStmt.executeUpdate();
+
+                  sql = "INSERT INTO author(authorID, name,dob) VALUES(?,?,?);";
+                  preStmt = con.prepareStatement(sql);
+                  preStmt.setString(1, book.getAuthor().getAuthorIDs());
+                  preStmt.setString(2, book.getAuthor().getFullName());
+                    preStmt.setString(3, book.getAuthor().getDob());
+                  preStmt.executeUpdate();
+
+                  query1 = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
+                  preStmt = con.prepareStatement(query1);
+                  preStmt.setString(1, book.getAuthor().getAuthorIDs());
+                  preStmt.setString(2, book.getIsbn());
+                  preStmt.executeUpdate();
+                con.commit();
+            } catch(SQLException ex){
+                if(con==null)throw new BooksDbException(ex.getMessage(),ex);
+                {
+                    con.rollback();
+                }
+
+            } finally {
+
+                    con.setAutoCommit(true);
+            }
         }
     }
-}
+
+    @Override
+    public void addAuthorToDb(Author author) throws BooksDbException, SQLException {
+        if(author == null) throw new BooksDbException("Cannot add"); {
+            String query = "INSERT INTO author (authorID, name,dob)" + "VALUES(?, ?,?)";
+            try {
+                con.setAutoCommit(false);
+                preStmt = con.prepareStatement(query);
+                preStmt.setString(1, author.getAuthorIDs());
+                preStmt.setString(2, author.getFullName());
+                preStmt.setString(3, author.getDob());
+                preStmt.executeUpdate();
+                query = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
+                preStmt = con.prepareStatement(query);
+                preStmt.setString(1, author.getAuthorIDs());
+                preStmt.setString(2, author.getISBN());
+                preStmt.executeUpdate();
+                con.commit();
+            } catch(SQLException ex){
+               if(con==null)throw new BooksDbException(ex.getMessage(),ex);
+               {
+                   con.rollback();
+               }
+            } finally {
+                con.setAutoCommit(true);
+
+            }
+
+        }
+
+    }
+
+
+    }
+
+
+

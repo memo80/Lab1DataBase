@@ -1,10 +1,9 @@
 package se.kth.najiib.databasfinversion.mViewController;
 
-import se.kth.najiib.databasfinversion.modelVC.Book;
-import se.kth.najiib.databasfinversion.modelVC.BooksDbException;
-import se.kth.najiib.databasfinversion.modelVC.BooksDbInterface;
-import se.kth.najiib.databasfinversion.modelVC.SearchMode;
+import javafx.application.Platform;
+import se.kth.najiib.databasfinversion.modelVC.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,42 +19,107 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final BooksDbInterface booksDb; // model
+    private List<Book> result1;
 
     public Controller(BooksDbInterface booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
+
     }
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
+
         try {
             if (searchFor != null && searchFor.length() != 0) {
-                List<Book> result = null;
+                result1=new ArrayList<>();
                 switch (mode) {
                     case Title:
-                        result = booksDb.searchBooksByTitle(searchFor);
+                        new Thread(() -> {
+                            try {
+                                result1 = booksDb.searchBooksByTitle(searchFor);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateResult(result1);
+                                    }
+                                });
+
+                            } catch (BooksDbException e) {
+                                booksView.showAlertAndWait("Database error.", ERROR);
+                            }
+                        }).start();
                         break;
                     case ISBN:
-                      result= booksDb.searchBooksByISBN(searchFor);
+
+                        new Thread(() -> {
+                            try {
+                                result1 = booksDb.searchBooksByISBN(searchFor);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateResult(result1);
+                                    }
+                                });
+
+                            } catch (BooksDbException e) {
+                                booksView.showAlertAndWait("Database error.", ERROR);
+                            }
+                        }).start();
                         break;
                     case Genre:
-                        result=booksDb.searchBooksByGenre(searchFor);
+                        new Thread(() -> {
+                            try {
+                               result1 =booksDb.searchBooksByGenre(searchFor);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateResult(result1);
+                                    }
+                                });
+
+                            } catch (BooksDbException e) {
+                                booksView.showAlertAndWait("Database error.", ERROR);
+                            }
+                        }).start();
                         break;
                     case Author:
-                        // ...
+                        new Thread(() -> {
+                            try {
+                                 result1 = booksDb.searchBookByAuthor(searchFor);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateResult(result1);
+                                    }
+                                });
+
+                            } catch (BooksDbException e) {
+                                booksView.showAlertAndWait("Database error.", ERROR);
+                            }
+                        }).start();
                         break;
                     case Rating:
-                        int rating=Integer.parseInt(searchFor);
-                        result=booksDb.searchBooksByRating(rating);
+                        new Thread(() -> {
+                            try {
+                                int rating=Integer.parseInt(searchFor);
+                                result1 =booksDb.searchBooksByRating(rating);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateResult(result1);
+                                    }
+                                });
+
+                            } catch (BooksDbException | SQLException e) {
+                                booksView.showAlertAndWait("Database error.", ERROR);
+                            }
+
+                        }).start();
+
                         break;
-                    default:
-                        result= new ArrayList<>();
+                    default: result1=new ArrayList<>();
                 }
-                if (result == null || result.isEmpty()) {
-                    booksView.showAlertAndWait(
-                            "No results found.", INFORMATION);
-                } else {
-                    booksView.displayBooks(result);
-                }
+
             } else {
                 booksView.showAlertAndWait(
                         "Enter a search string!", WARNING);
@@ -65,17 +129,89 @@ public class Controller {
         }
     }
 
-    public void handleConnection(String database) throws BooksDbException {
-        booksDb.connect(database);
+    protected void updateResult(List<Book> result) {
+        if (result == null || result.isEmpty()) {
+            booksView.showAlertAndWait(
+                    "No results found.", INFORMATION);
+        } else {
+            booksView.displayBooks(result);
+        }
     }
 
-    public void handledisConnection() throws BooksDbException {
-        booksDb.disconnect();
+    public void handleConnection(String database) {
+
+        new Thread(() -> {
+            try {
+                booksDb.connect(database);
+            } catch (BooksDbException e) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        booksView.showAlertAndWait("Cannot connect to database", ERROR);
+                    }
+                });
+            }
+        }).start();
+
     }
 
-     public void handleAddBook(Book book) throws BooksDbException {
-        booksDb.addBook(book);
+    public void handledisConnection()  {
+
+        new Thread(() -> {
+            try {
+                booksDb.disconnect();
+            } catch (BooksDbException e) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        booksView.showAlertAndWait("Cannot disconnect database", ERROR);
+                    }
+                });
+            }
+        }).start();
     }
+
+
+
+     public void handleAddBook(Book book)  {
+
+
+         new Thread(() -> {
+             try {
+                 booksDb.addBookToDb(book);
+             } catch (BooksDbException e) {
+                 Platform.runLater(new Runnable() {
+                     @Override
+                     public void run() {
+                         booksView.showAlertAndWait("Cannot add book", ERROR);
+                     }
+                 });
+             } catch (SQLException e) {
+                 e.printStackTrace();
+             }
+         }).start();
+     }
+
+    public void handleAddAuthor(Author author) {
+
+        new Thread(() -> {
+            try {
+                booksDb.addAuthorToDb(author);
+            } catch (BooksDbException e) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        booksView.showAlertAndWait("Cannot add author", ERROR);
+                    }
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+    }
+
+
 
     // TODO:
     // Add methods for all types of user interaction (e.g. via  menus).

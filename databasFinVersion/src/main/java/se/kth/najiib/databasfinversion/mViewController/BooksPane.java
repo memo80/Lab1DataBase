@@ -1,7 +1,7 @@
 package se.kth.najiib.databasfinversion.mViewController;
 
-import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,13 +97,17 @@ public class BooksPane extends VBox {
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         TableColumn<Book, String> genreCol = new TableColumn<>("Genre");
+        TableColumn<Book, Integer> ratingCol = new TableColumn<>("Rating");
         TableColumn<Book, String> dateCol = new TableColumn<>("Published");
 
-       TableColumn<Book, Integer> ratingCol = new TableColumn<>("Rating");
-        booksTable.getColumns().addAll(titleCol, isbnCol,genreCol,ratingCol);
+        TableColumn<Book, String> nameCol = new TableColumn<>("Author");
+
+
+        booksTable.getColumns().addAll(titleCol, isbnCol,genreCol,ratingCol,dateCol,nameCol);
         // give title column some extra space
-        titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.45));
+        titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.20));
         isbnCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.20));
+        nameCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.35));
 
         // define how to fill data for each cell,
         // get values from Book properties
@@ -112,6 +116,8 @@ public class BooksPane extends VBox {
         genreCol.setCellValueFactory(new PropertyValueFactory<>("genre"));
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("rating"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("Published"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("authors"));
+
         // associate the table view with the data
         booksTable.setItems(booksInTable);
     }
@@ -137,6 +143,7 @@ public class BooksPane extends VBox {
 
     private void initMenus() {
         AddBookDialog dialog = new AddBookDialog();
+        AddAuthorDialog authorDialog=new AddAuthorDialog();
 
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
@@ -144,13 +151,9 @@ public class BooksPane extends VBox {
             @Override
             public void handle(ActionEvent event) {
 
-                try {
-                    controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
-                    System.out.println("Error");
-                    // if(bol.connect()) throw new BooksDbException("Error");
-                } catch (BooksDbException e) {
-                    e.printStackTrace();
-                }
+                controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
+                System.out.println("Error");
+                // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         exitItem.addEventHandler(ActionEvent.ACTION,exitHandler);
@@ -160,12 +163,8 @@ public class BooksPane extends VBox {
             @Override
             public void handle(ActionEvent event) {
 
-                try {
-                    controller.handleConnection("dblibrary");// KOLLA UPP VRF DET BLIR NULL!!!!!!
-                    // if(bol.connect()) throw new BooksDbException("Error");
-                } catch (BooksDbException e) {
-                    e.printStackTrace();
-                }
+                controller.handleConnection("dblibrary");// KOLLA UPP VRF DET BLIR NULL!!!!!!
+                // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         connectItem.addEventHandler(ActionEvent.ACTION,connectHandler);
@@ -174,12 +173,8 @@ public class BooksPane extends VBox {
             @Override
             public void handle(ActionEvent event) {
 
-                try {
-                    controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
-                    // if(bol.connect()) throw new BooksDbException("Error");
-                } catch (BooksDbException e) {
-                    e.printStackTrace();
-                }
+                controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
+                // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         disconnectItem.addEventHandler(ActionEvent.ACTION,disconnectHandler);
@@ -199,11 +194,7 @@ public class BooksPane extends VBox {
                 Optional<Book> result = dialog.showAndWait();
                 if (result.isPresent()) {
                     Book book = result.get();
-                    try {
-                        controller.handleAddBook(book);
-                    } catch (BooksDbException e) {
-                        e.printStackTrace();
-                    }
+                    controller.handleAddBook(book);
                     System.out.println("Result: " + book.toString());
                 } else {
                     System.out.println("Canceled");
@@ -211,9 +202,43 @@ public class BooksPane extends VBox {
             }
         };
         addItem.addEventHandler(ActionEvent.ACTION,conHandler);
+
+        MenuItem addAuthorItem = new MenuItem("Add Author");
+        EventHandler<ActionEvent> addAuthorHandler = new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Optional<Author> result = authorDialog.showAndWait();
+                if (result.isPresent()) {
+                    Author author = result.get();
+                    controller.handleAddAuthor(author);
+                    System.out.println("Result: " + author.toString());
+                } else {
+                    System.out.println("Canceled");
+                }
+            }
+        };
+        addAuthorItem.addEventHandler(ActionEvent.ACTION, addAuthorHandler);
+
+       /* MenuItem AddRatingItem= new MenuItem("Add rating");
+        EventHandler<ActionEvent> addRatingHandler = new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                AddRatingDialog dialog = new AddRatingDialog(booksInTable);
+                Optional<Book> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    Book book = result.get();
+                    System.out.println("Result: " + book);
+                    controller.updateRating();
+                } else {
+                    System.out.println("Canceled");
+                }
+            }
+        };
+        AddRatingItem.addEventHandler(ActionEvent.ACTION, addRatingHandler);*/
+
         MenuItem removeItem = new MenuItem("Remove");
-        MenuItem updateItem = new MenuItem("Update");
-        manageMenu.getItems().addAll(addItem, removeItem, updateItem);
+        MenuItem update1Item = new MenuItem("Update");
+        manageMenu.getItems().addAll(addItem, removeItem, update1Item,addAuthorItem);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);

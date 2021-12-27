@@ -39,3 +39,13 @@ public class Main extends Application {
         launch(args);
     }
 }
+
+
+/* FÖR BOOKSDBLMPL
+/*String title1 = rs.getString("title");
+                String isbn = rs.getString("ISBN");
+                String genre = rs.getString("genre");
+                int rating=rs.getInt("rating");
+                String ID= rs.getString("authorID");
+                String name= rs.getString("authorName");
+                result.add(new Book(title1, isbn, Genre.valueOf(genre),rating,ID,name));*/

@@ -8,4 +8,6 @@ module se.kth.najiib.databasfinversion {
     exports se.kth.najiib.databasfinversion;
     exports se.kth.najiib.databasfinversion.modelVC;
     opens se.kth.najiib.databasfinversion.modelVC to javafx.fxml;
+    exports se.kth.najiib.databasfinversion.mViewController;
+    opens se.kth.najiib.databasfinversion.mViewController to javafx.fxml;
 }
