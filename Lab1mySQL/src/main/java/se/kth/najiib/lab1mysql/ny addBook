@@ -1,0 +1,29 @@
+      sql = "INSERT INTO book(ISBN, title, genre, Rating,authorID ,authorName,published,dob)" + "VALUES(?,?,?,?,?,?,?,?)";
+                con.setAutoCommit(false);
+                preStmt = con.prepareStatement(sql);
+                preStmt.setString(1, book.getIsbn());
+                preStmt.setString(2, book.getTitle());
+                preStmt.setString(3, book.getGenre().toString());
+                preStmt.setString(4, Integer.toString(book.getRating()));
+                preStmt.setString(5, book.getAuthor().getAuthorIDs());
+                preStmt.setString(6, book.getAuthor().getFullName());
+                preStmt.setString(7, book.getPublished());
+                preStmt.setString(8, book.getAuthor().getDob());
+                preStmt.executeUpdate();
+
+                sql = "INSERT INTO author(authorID, name,dob) VALUES(?,?,?);";
+                preStmt = con.prepareStatement(sql);
+                preStmt.setString(1, book.getAuthor().getAuthorIDs());
+                preStmt.setString(2, book.getAuthor().getFullName());
+                preStmt.setString(3, book.getAuthor().getDob());
+                preStmt.executeUpdate();
+
+                query1 = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
+                preStmt = con.prepareStatement(query1);
+                preStmt.setString(1, book.getAuthor().getAuthorIDs());
+                preStmt.setString(2, book.getIsbn());
+                preStmt.executeUpdate();
+                con.commit();
+                
+                
+                //Lägg till den under try
