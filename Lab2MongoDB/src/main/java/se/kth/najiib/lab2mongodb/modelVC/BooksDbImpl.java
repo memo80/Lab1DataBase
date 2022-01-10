@@ -10,6 +10,7 @@ package se.kth.najiib.lab2mongodb.modelVC;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -37,18 +38,15 @@ import java.util.List;
 public class BooksDbImpl implements BooksDbInterface {
 
     private List<Book> books;
-    private Connection con;
-    private PreparedStatement preStmt;
-    private ResultSet rts;
+
     private MongoDatabase base;
+    private MongoClient mongo;
 
     public BooksDbImpl() {
-        //books = Arrays.asList(DATA);
+       
         books = new ArrayList<>();
-        con = null;
-        preStmt = null;
-        rts = null;
         base = null;
+        mongo=null;
     }
 
 
@@ -59,11 +57,10 @@ public class BooksDbImpl implements BooksDbInterface {
         String port = "@cluster-shard-00-00.l06kt.mongodb.net:27017,cluster-shard-00-01.l06kt.mongodb.net:27017,cluster-shard-00-02.l06kt.mongodb.net:27017";
 
         try {
-            MongoClient mongo = new MongoClient(new MongoClientURI("mongodb://" + user + ":" + pwd + port + "/" + database + "?ssl=true&replicaSet=atlas-qclrvl-shard-0&authSource=admin&retryWrites=true&w=majority"));
-
+            mongo = new MongoClient(new MongoClientURI("mongodb://" + user + ":" + pwd + port + "/" + database + "?ssl=true&replicaSet=atlas-qclrvl-shard-0&authSource=admin&retryWrites=true&w=majority"));
             base = mongo.getDatabase(database);
             return true;
-        } catch (Exception ex) {
+        } catch (MongoException ex) {
             throw new BooksDbException(ex.getMessage(), ex);
         }
     }
@@ -73,9 +70,9 @@ public class BooksDbImpl implements BooksDbInterface {
     public void disconnect() throws BooksDbException {
         // mock implementation
         try {
-            con.close();
+            mongo.close();
             System.out.println("Disconnected");
-        } catch (SQLException ex) {
+        } catch (MongoException ex) {
             throw new BooksDbException(ex.getMessage(), ex);
         }
     }
