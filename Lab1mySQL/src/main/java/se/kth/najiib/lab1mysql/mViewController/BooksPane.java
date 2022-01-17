@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -103,7 +104,7 @@ public class BooksPane extends VBox {
         TableColumn<Book, String> nameCol = new TableColumn<>("Author");
 
 
-        booksTable.getColumns().addAll(titleCol, isbnCol,genreCol,ratingCol,dateCol,nameCol);
+        booksTable.getColumns().addAll(titleCol, isbnCol,genreCol,ratingCol,dateCol,nameCol);// lägger in i tabellen
         // give title column some extra space
         titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.20));
         isbnCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.20));
@@ -153,7 +154,8 @@ public class BooksPane extends VBox {
 
                 controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
                 System.out.println("Error");
-                // if(bol.connect()) throw new BooksDbException("Error");
+                Platform.exit();// save data and exit
+                        // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         exitItem.addEventHandler(ActionEvent.ACTION,exitHandler);

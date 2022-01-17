@@ -171,10 +171,7 @@ public class Controller {
         }).start();
     }
 
-
-
     public void handleAddBook(Book book)  {
-
 
         new Thread(() -> {
             try {

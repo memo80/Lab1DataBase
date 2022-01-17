@@ -1,12 +1,5 @@
 package se.kth.najiib.lab1mysql.modelVC;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +14,23 @@ import java.util.List;
  */
 public class BooksDbImpl implements BooksDbInterface {
 
-    private List<Book> books;
+
     private Connection con;
     private PreparedStatement preStmt;
     private ResultSet rts;
 
     public BooksDbImpl() {
         //books = Arrays.asList(DATA);
-        books=new ArrayList<>();
         con=null;
         preStmt=null;
         rts=null;
     }
 
-
+    /**
+     * This method connects to database
+     * @return returns true or false if a connection is etablished or not
+     * @throws BooksDbException
+     */
     @Override
     public boolean connect(String database) throws BooksDbException {
         String user = "Clerk"; // user name
@@ -51,7 +47,10 @@ public class BooksDbImpl implements BooksDbInterface {
         }
     }
 
-
+    /**
+     * this method disconnect the database
+     * @throws BooksDbException
+     */
     @Override
     public void disconnect() throws BooksDbException {
         // mock implementation
@@ -63,6 +62,13 @@ public class BooksDbImpl implements BooksDbInterface {
         }
     }
 
+
+    /**
+     * search after book by title
+     * @param searchTitle which title to search
+     * @return list of books
+     * @throws BooksDbException
+     */
     @Override
     public List<Book> searchBooksByTitle(String searchTitle) throws BooksDbException {
         List<Book> result = new ArrayList<>();
@@ -70,9 +76,10 @@ public class BooksDbImpl implements BooksDbInterface {
         try{
             String query = "SELECT * "+
                     "FROM book " +
-                    "NATURAL JOIN writtenby " +
+                    "NATURAL JOIN writtenby " + // relation i databasen
                     "NATURAL JOIN author "+
                     "WHERE book.title LIKE '%"+searchTitle+"%'";
+
             preStmt = con.prepareStatement(query);
             rts = preStmt.executeQuery();
             while(rts.next()){
@@ -92,12 +99,12 @@ public class BooksDbImpl implements BooksDbInterface {
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
             try{
+                preStmt.close();
                 rts.close();
 
             }
-            catch (SQLException e)
-            {
-                throw new BooksDbException(e.getMessage(),e);
+            catch (SQLException e) {
+                e.printStackTrace();
             }
 
         }
@@ -105,18 +112,18 @@ public class BooksDbImpl implements BooksDbInterface {
         return result;
     }
 
+    /**
+     * search after book by ISBN
+     * @param searchIsbn which ISBN to search
+     * @return list of books
+     * @throws BooksDbException
+     */
     public List<Book> searchBooksByISBN(String searchIsbn) throws BooksDbException{
-
-        ArrayList<Book> books = new ArrayList<>();
         List<Book> result = new ArrayList<>();
-
-
         // mock implementation
         // NB! Your implementation should select the books matching
         // the search string via a query with to a database.
-
         try{
-
 
             String query = "SELECT * "+
                     "FROM book " +
@@ -131,7 +138,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         Genre.valueOf( rts.getString("genre"))
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorId"),
+                        new Author(rts.getString("authorID"),
                                 rts.getString("authorName"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
@@ -140,7 +147,8 @@ public class BooksDbImpl implements BooksDbInterface {
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
             try {
-                rts.close();
+                preStmt.close();
+                rts.close(); //free resources
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -150,6 +158,12 @@ public class BooksDbImpl implements BooksDbInterface {
         return result;
     }
 
+    /**
+     * search after book by author
+     * @param searchAuthor which author to search
+     * @return list of books
+     * @throws BooksDbException
+     */
     @Override
     public List<Book> searchBookByAuthor(String searchAuthor) throws BooksDbException {
         List<Book> result = new ArrayList<>();
@@ -167,16 +181,16 @@ public class BooksDbImpl implements BooksDbInterface {
                         Genre.valueOf( rts.getString("genre"))
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorId"),
+                        new Author(rts.getString("authorID"),
                                 rts.getString("authorName"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
             }
-
         }catch(SQLException ex){
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
             try {
+                preStmt.close();
                 rts.close();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -185,7 +199,12 @@ public class BooksDbImpl implements BooksDbInterface {
         return result;
     }
 
-
+    /**
+     * search after book by genre
+     * @param searchGenre which title to search
+     * @return list of books
+     * @throws BooksDbException
+     */
     @Override
     public List<Book> searchBooksByGenre(String searchGenre) throws BooksDbException {
         List<Book> result= new ArrayList<>();
@@ -208,7 +227,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         Genre.valueOf( rts.getString("genre")),
                         rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorId"),
+                        new Author(rts.getString("authorID"),
                                 rts.getString("authorName"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
@@ -219,6 +238,7 @@ public class BooksDbImpl implements BooksDbInterface {
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
             try {
+                preStmt.close();
                 rts.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -228,6 +248,12 @@ public class BooksDbImpl implements BooksDbInterface {
         return result;
     }
 
+    /**
+     * search after book by rating
+     * @param searchRating which rating to search
+     * @return list of books
+     * @throws BooksDbException
+     */
     @Override
     public List<Book> searchBooksByRating(int searchRating) throws BooksDbException,SQLException {
         List<Book> result = new ArrayList<>();
@@ -236,15 +262,15 @@ public class BooksDbImpl implements BooksDbInterface {
         try{
             String query = "SELECT * "+ "FROM book " + "NATURAL JOIN writtenby " + "NATURAL JOIN author "+ "WHERE book.Rating LIKE '%"+searchRating+"%'";
 
-            PreparedStatement stmt = con.prepareStatement(query);
-            rts = stmt.executeQuery();
+            preStmt = con.prepareStatement(query);
+            rts = preStmt.executeQuery();
             while(rts.next()){
                 result.add(new Book(rts.getString("title"),
                         rts.getString("ISBN"),
                         Genre.valueOf( rts.getString("genre"))
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorId"),
+                        new Author(rts.getString("authorID"),
                                 rts.getString("authorName"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
@@ -254,25 +280,25 @@ public class BooksDbImpl implements BooksDbInterface {
         }catch(SQLException ex){
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
-
+            preStmt.close();
             rts.close();
-
         }
-
         return result;
     }
 
-
+    /**
+     * this method adds a book to database
+     * @param book the book that will be added
+     * @throws BooksDbException
+     */
     @Override
     public void addBookToDb(Book book) throws BooksDbException,SQLException {
         if(book != null)
         {
-            String sql = "";
-            String query1 = "";
 
             try {
 
-                sql = "INSERT INTO book(ISBN, title, genre, Rating,authorID ,authorName)" + "VALUES(?,?,?,?,?,?,?,?)";
+                String sql = "INSERT INTO book(ISBN, title, genre, Rating,authorID ,authorName,published,dob)" + "VALUES(?,?,?,?,?,?,?,?)";
                 con.setAutoCommit(false);
                 preStmt = con.prepareStatement(sql);
                 preStmt.setString(1, book.getIsbn());
@@ -285,14 +311,14 @@ public class BooksDbImpl implements BooksDbInterface {
                 preStmt.setString(8, book.getAuthor().getDob());
                 preStmt.executeUpdate();
 
-                sql = "INSERT INTO author(authorID, name,dob) VALUES(?,?,?);";
-                preStmt = con.prepareStatement(sql);
+                String sql1 = "INSERT INTO author(authorID, name,dob) VALUES(?,?,?);";
+                preStmt = con.prepareStatement(sql1);
                 preStmt.setString(1, book.getAuthor().getAuthorIDs());
                 preStmt.setString(2, book.getAuthor().getFullName());
                 preStmt.setString(3, book.getAuthor().getDob());
                 preStmt.executeUpdate();
 
-                query1 = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
+                String query1 = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
                 preStmt = con.prepareStatement(query1);
                 preStmt.setString(1, book.getAuthor().getAuthorIDs());
                 preStmt.setString(2, book.getIsbn());
@@ -303,6 +329,7 @@ public class BooksDbImpl implements BooksDbInterface {
                 {
                     con.rollback();
                 }
+                preStmt.close();
 
             } finally {
 
@@ -311,19 +338,26 @@ public class BooksDbImpl implements BooksDbInterface {
         }
     }
 
+
+    /**
+     * this method adds an author to a book in database
+     * @param author the author we add
+     * @throws BooksDbException
+     */
     @Override
     public void addAuthorToDb(Author author) throws BooksDbException, SQLException {
         if(author == null) throw new BooksDbException("Cannot add"); {
-            String query = "INSERT INTO author (authorID, name,dob)" + "VALUES(?, ?,?)";
+
             try {
                 con.setAutoCommit(false);
+                String query = "INSERT INTO author (authorID, name,dob)" + "VALUES(?, ?,?)";
                 preStmt = con.prepareStatement(query);
                 preStmt.setString(1, author.getAuthorIDs());
                 preStmt.setString(2, author.getFullName());
                 preStmt.setString(3, author.getDob());
                 preStmt.executeUpdate();
-                query = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
-                preStmt = con.prepareStatement(query);
+                String query1 = "INSERT INTO writtenby(authorID, ISBN) VALUES(?,?);";
+                preStmt = con.prepareStatement(query1);
                 preStmt.setString(1, author.getAuthorIDs());
                 preStmt.setString(2, author.getISBN());
                 preStmt.executeUpdate();
@@ -333,9 +367,9 @@ public class BooksDbImpl implements BooksDbInterface {
                 {
                     con.rollback();
                 }
+                preStmt.close();
             } finally {
                 con.setAutoCommit(true);
-
             }
 
         }
@@ -344,7 +378,3 @@ public class BooksDbImpl implements BooksDbInterface {
 
 
 }
-
-
-
-

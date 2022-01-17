@@ -22,9 +22,6 @@ public class Author {
         this.dob=dob;
 
     }
-
-
-
     public String getISBN(){
         return ISBN;
     }
@@ -32,17 +29,21 @@ public class Author {
     public List<Book> getBooks(){
         return (List<Book>) books.clone();
     }
-    /** Denna metod hämtar födelsedatum
+    /** this method obtains authorID of an author
+     *
+     * @return authorID of an author
+     */
+    public String getAuthorIDs(){return authorIDs;}
+    /** this method obtains birtday of an author
      *
      * @return födelsedatum
      */
-    public String getAuthorIDs(){return authorIDs;}
     public String getDob() {
         return dob;
     }
-    /** Denna metod hämtar namn på författare
+    /**this method obtains name of an author
      *
-     * @return namnet på författaren
+     * @return name of an author
      */
     public String getFullName(){
         return fullName;

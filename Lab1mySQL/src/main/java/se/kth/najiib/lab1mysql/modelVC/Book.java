@@ -34,20 +34,34 @@ public class Book {
         this.genre=genre;
         this.rating=rating;
         this.authors =new ArrayList<>();
-        addAuthor(author);
+        this.addAuthor(author);
 
     }
-
+    /**this method adds author
+     * @param authors
+     */
     public void addAuthor(Author authors)
     {
         this.authors.add(authors);
     }
+    /**this method obtains ISBN of a book
+     *
+     * @return ISBN of a book
+     */
     public String getIsbn() { return isbn; }
+    /**this method obtains title of a book
+     *
+     * @return title of a book
+     */
     public String getTitle() { return title; }
     private static final Pattern ISBN_PATTERN = Pattern.compile("^[0-9]{3}$");
     public static boolean isValidISBN(String isbn){
         return ISBN_PATTERN.matcher(isbn).matches();
     }
+    /** this method obtains a copy of a list of authors
+     *
+     * @return list of authors (copy)
+     */
     public Author getAuthor() {
         return author;
     }
@@ -55,13 +69,24 @@ public class Book {
 
         return List.copyOf(authors);
     }
+    /**this method obtains rating of a book
+     *
+     * @return rating of a book
+     */
     public int getRating() {
         return rating;
     }
+    /**this method obtains genre of a book
+     *
+     * @return genre of a book
+     */
     public Genre getGenre() {
         return genre;
     }
-
+    /**this method obtains published date of a book
+     *
+     * @return published date of a book
+     */
     public String getPublished() {
         return published;
     }
