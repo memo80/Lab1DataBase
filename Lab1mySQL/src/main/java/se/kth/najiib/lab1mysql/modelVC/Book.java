@@ -34,7 +34,7 @@ public class Book {
         this.genre=genre;
         this.rating=rating;
         this.authors =new ArrayList<>();
-        addAuthor(author);
+        this.addAuthor(author);
 
     }
     /**this method adds author

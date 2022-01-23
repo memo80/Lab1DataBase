@@ -100,7 +100,7 @@ public class BooksDbImpl implements BooksDbInterface {
         } finally {
             try{
                 preStmt.close();
-                rts.close();
+              //  rts.close();
 
             }
             catch (SQLException e) {
@@ -130,15 +130,15 @@ public class BooksDbImpl implements BooksDbInterface {
                     "NATURAL JOIN writtenby " +
                     "NATURAL JOIN author "+
                     "WHERE book.ISBN LIKE '%"+searchIsbn+"%'";
-            PreparedStatement stmt = con.prepareStatement(query);
-            rts = stmt.executeQuery();
+            preStmt = con.prepareStatement(query);
+            rts = preStmt.executeQuery();
             while(rts.next()){
                 result.add(new Book(rts.getString("title"),
                         rts.getString("ISBN"),
                         Genre.valueOf( rts.getString("genre"))
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorID"),
+                        new Author(rts.getString("authorId"),
                                 rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
@@ -148,7 +148,7 @@ public class BooksDbImpl implements BooksDbInterface {
         } finally {
             try {
                 preStmt.close();
-                rts.close(); //free resources
+            //rts.close();
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -164,16 +164,19 @@ public class BooksDbImpl implements BooksDbInterface {
      * @return list of books
      * @throws BooksDbException
      */
-    @Override
-    public List<Book> searchBookByAuthor(String searchAuthor) throws BooksDbException {
+    public List<Book> searchBooksByAuthor(String searchAuthor) throws BooksDbException{
         List<Book> result = new ArrayList<>();
+        // mock implementation
+        // NB! Your implementation should select the books matching
+        // the search string via a query with to a database.
         try{
+
             String query = "SELECT * "+
                     "FROM book " +
                     "NATURAL JOIN writtenby " +
                     "NATURAL JOIN author "+
-                    "WHERE book.authorName LIKE '%"+searchAuthor+"%'";
-            preStmt = con.prepareStatement(query);
+                    "WHERE author.name LIKE '%"+searchAuthor+"%'";
+             preStmt = con.prepareStatement(query);
             rts = preStmt.executeQuery();
             while(rts.next()){
                 result.add(new Book(rts.getString("title"),
@@ -181,7 +184,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         Genre.valueOf( rts.getString("genre"))
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
-                        new Author(rts.getString("authorID"),
+                        new Author(rts.getString("authorId"),
                                 rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
@@ -191,11 +194,13 @@ public class BooksDbImpl implements BooksDbInterface {
         } finally {
             try {
                 preStmt.close();
-                rts.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                //rts.close();
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
         }
+
         return result;
     }
 
@@ -239,7 +244,7 @@ public class BooksDbImpl implements BooksDbInterface {
         } finally {
             try {
                 preStmt.close();
-                rts.close();
+               // rts.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -281,7 +286,7 @@ public class BooksDbImpl implements BooksDbInterface {
             throw new BooksDbException(ex.getMessage(),ex);
         } finally {
             preStmt.close();
-            rts.close();
+           // rts.close();
         }
         return result;
     }

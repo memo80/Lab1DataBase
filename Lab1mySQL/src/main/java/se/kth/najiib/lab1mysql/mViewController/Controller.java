@@ -85,7 +85,7 @@ public class Controller {
                     case Author:
                         new Thread(() -> {
                             try {
-                                result1 = booksDb.searchBookByAuthor(searchFor);
+                                result1 = booksDb.searchBooksByAuthor(searchFor);
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {

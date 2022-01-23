@@ -29,7 +29,7 @@ public interface BooksDbInterface {
     public List<Book> searchBooksByISBN(String searchISBN) throws BooksDbException;
     public List<Book> searchBooksByGenre(String searchGenre) throws BooksDbException;
     public List<Book> searchBooksByRating(int searchRating) throws BooksDbException, SQLException;
-    public List<Book> searchBookByAuthor(String searchAuthor) throws BooksDbException;
+    public List<Book>  searchBooksByAuthor(String searchAuthor) throws BooksDbException;
     public void addBookToDb(Book book) throws BooksDbException, SQLException;
     public void addAuthorToDb(Author author) throws BooksDbException, SQLException;
 
