@@ -90,7 +90,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
                         new Author(rts.getString("authorId"),
-                                rts.getString("authorName"),
+                                rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
 
@@ -139,7 +139,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
                         new Author(rts.getString("authorID"),
-                                rts.getString("authorName"),
+                                rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
             }
@@ -182,7 +182,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
                         new Author(rts.getString("authorID"),
-                                rts.getString("authorName"),
+                                rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
             }
@@ -228,7 +228,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         rts.getInt("Rating"),
                         rts.getString("published"),
                         new Author(rts.getString("authorID"),
-                                rts.getString("authorName"),
+                                rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
 
@@ -271,7 +271,7 @@ public class BooksDbImpl implements BooksDbInterface {
                         ,rts.getInt("Rating"),
                         rts.getString("published"),
                         new Author(rts.getString("authorID"),
-                                rts.getString("authorName"),
+                                rts.getString("name"),
                                 rts.getString("dob"),
                                 rts.getString("ISBN"))));
 
@@ -298,17 +298,15 @@ public class BooksDbImpl implements BooksDbInterface {
 
             try {
 
-                String sql = "INSERT INTO book(ISBN, title, genre, Rating,authorID ,authorName,published,dob)" + "VALUES(?,?,?,?,?,?,?,?)";
+                String sql = "INSERT INTO book(ISBN, title, genre, Rating,published)" + "VALUES(?,?,?,?,?)";
                 con.setAutoCommit(false);
                 preStmt = con.prepareStatement(sql);
                 preStmt.setString(1, book.getIsbn());
                 preStmt.setString(2, book.getTitle());
                 preStmt.setString(3, book.getGenre().toString());
                 preStmt.setString(4, Integer.toString(book.getRating()));
-                preStmt.setString(5, book.getAuthor().getAuthorIDs());
-                preStmt.setString(6, book.getAuthor().getFullName());
-                preStmt.setString(7, book.getPublished());
-                preStmt.setString(8, book.getAuthor().getDob());
+                preStmt.setString(5, book.getPublished());
+
                 preStmt.executeUpdate();
 
                 String sql1 = "INSERT INTO author(authorID, name,dob) VALUES(?,?,?);";
