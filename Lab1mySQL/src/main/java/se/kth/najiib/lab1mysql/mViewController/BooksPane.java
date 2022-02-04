@@ -93,6 +93,8 @@ public class BooksPane extends VBox {
         booksTable = new TableView<>();
         booksTable.setEditable(false); // don't allow user updates (yet)
         booksTable.setPlaceholder(new Label("No rows to display"));
+//loopa igenom arraylisten
+
 
         // define columns
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
@@ -117,7 +119,7 @@ public class BooksPane extends VBox {
         genreCol.setCellValueFactory(new PropertyValueFactory<>("genre"));
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("rating"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("Published"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("authors"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("Author"));
 
         // associate the table view with the data
         booksTable.setItems(booksInTable);

@@ -53,8 +53,15 @@ public class Book {
      *
      * @return title of a book
      */
-    public String getTitle() { return title; }
+    public String getTitle() { return title;  }
     private static final Pattern ISBN_PATTERN = Pattern.compile("^[0-9]{3}$");
+    public void getFirstName()
+    {
+        for (int i=0;i<authors.size();i++)
+        {
+            author.getFullName();
+        }
+    }
     public static boolean isValidISBN(String isbn){
         return ISBN_PATTERN.matcher(isbn).matches();
     }
@@ -69,6 +76,7 @@ public class Book {
 
         return List.copyOf(authors);
     }
+   
     /**this method obtains rating of a book
      *
      * @return rating of a book

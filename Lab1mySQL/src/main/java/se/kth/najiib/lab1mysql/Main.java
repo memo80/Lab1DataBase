@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import se.kth.najiib.lab1mysql.modelVC.Book;
 import se.kth.najiib.lab1mysql.modelVC.BooksDbImpl;
 import se.kth.najiib.lab1mysql.mViewController.BooksPane;
 import se.kth.najiib.lab1mysql.mViewController.BooksPane;

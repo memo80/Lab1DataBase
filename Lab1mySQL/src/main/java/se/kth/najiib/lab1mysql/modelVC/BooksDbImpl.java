@@ -16,8 +16,8 @@ public class BooksDbImpl implements BooksDbInterface {
 
 
     private Connection con;
-    private PreparedStatement preStmt;
-    private ResultSet rts;
+    private PreparedStatement preStmt;//ska vara inne i metoderna
+    private ResultSet rts; // ska vara inne i metoderna
 
     public BooksDbImpl() {
         //books = Arrays.asList(DATA);
@@ -332,11 +332,12 @@ public class BooksDbImpl implements BooksDbInterface {
                 {
                     con.rollback();
                 }
-                preStmt.close();
+
 
             } finally {
 
                 con.setAutoCommit(true);
+                preStmt.close();
             }
         }
     }
@@ -370,9 +371,10 @@ public class BooksDbImpl implements BooksDbInterface {
                 {
                     con.rollback();
                 }
-                preStmt.close();
+
             } finally {
                 con.setAutoCommit(true);
+                preStmt.close();
             }
 
         }
