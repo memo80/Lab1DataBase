@@ -33,10 +33,11 @@ public class BooksPane extends VBox {
 
     private ComboBox<SearchMode> searchModeBox;
     private TextField searchField;
-    private Button searchButton;
+    protected Button searchButton;
     private Controller controller;
-
+protected Menu manageMenu;
     private MenuBar menuBar;
+    protected Menu searchMenu;
 
     public BooksPane(BooksDbImpl booksDb) {
         controller = new Controller(booksDb, this);
@@ -103,7 +104,7 @@ public class BooksPane extends VBox {
         TableColumn<Book, Integer> ratingCol = new TableColumn<>("Rating");
         TableColumn<Book, String> dateCol = new TableColumn<>("Published");
 
-        TableColumn<Book, String> nameCol = new TableColumn<>("Author");
+        TableColumn<Book, ArrayList> nameCol = new TableColumn<>("Author");
 
 
         booksTable.getColumns().addAll(titleCol, isbnCol,genreCol,ratingCol,dateCol,nameCol);// lägger in i tabellen
@@ -119,7 +120,7 @@ public class BooksPane extends VBox {
         genreCol.setCellValueFactory(new PropertyValueFactory<>("genre"));
         ratingCol.setCellValueFactory(new PropertyValueFactory<>("rating"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("Published"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("Author"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("authors"));
 
         // associate the table view with the data
         booksTable.setItems(booksInTable);
@@ -142,6 +143,7 @@ public class BooksPane extends VBox {
                 controller.onSearchSelected(searchFor, mode);
             }
         });
+        searchButton.setDisable(true);
     }
 
     private void initMenus() {
@@ -156,8 +158,9 @@ public class BooksPane extends VBox {
 
                 controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
                 System.out.println("Error");
+
                 Platform.exit();// save data and exit
-                        // if(bol.connect()) throw new BooksDbException("Error");
+                // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         exitItem.addEventHandler(ActionEvent.ACTION,exitHandler);
@@ -168,6 +171,9 @@ public class BooksPane extends VBox {
             public void handle(ActionEvent event) {
 
                 controller.handleConnection("dblibrary");// KOLLA UPP VRF DET BLIR NULL!!!!!!
+             manageMenu.setDisable(false);
+            searchButton.setDisable(false);
+             searchMenu.setDisable(false);
                 // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
@@ -178,19 +184,22 @@ public class BooksPane extends VBox {
             public void handle(ActionEvent event) {
 
                 controller.handledisConnection();// KOLLA UPP VRF DET BLIR NULL!!!!!!
+                manageMenu.setDisable(true);
+               //searchButton.setDisable(true);
+                searchMenu.setDisable(true);
                 // if(bol.connect()) throw new BooksDbException("Error");
             }
         };
         disconnectItem.addEventHandler(ActionEvent.ACTION,disconnectHandler);
         fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
 
-        Menu searchMenu = new Menu("Search");
+        searchMenu = new Menu("Search");
         MenuItem titleItem = new MenuItem("Title");
         MenuItem isbnItem = new MenuItem("ISBN");
         MenuItem authorItem = new MenuItem("Author");
         searchMenu.getItems().addAll(titleItem, isbnItem, authorItem);
-
-        Menu manageMenu = new Menu("Manage");
+        searchMenu.setDisable(true);
+         manageMenu = new Menu("Manage");
         MenuItem addItem = new MenuItem("Add book");
         EventHandler<ActionEvent>conHandler= new EventHandler<>(){
             @Override
@@ -214,7 +223,7 @@ public class BooksPane extends VBox {
                 Optional<Author> result = authorDialog.showAndWait();
                 if (result.isPresent()) {
                     Author author = result.get();
-                    controller.handleAddAuthor(author);
+                    controller.handleAddAuthor(author.getAuthorIDs(),author.getFullName(),author.getDob(),author.getISBN());
                     System.out.println("Result: " + author.toString());
                 } else {
                     System.out.println("Canceled");
@@ -243,6 +252,7 @@ public class BooksPane extends VBox {
         MenuItem removeItem = new MenuItem("Remove");
         MenuItem update1Item = new MenuItem("Update");
         manageMenu.getItems().addAll(addItem, removeItem, update1Item,addAuthorItem);
+        manageMenu.setDisable(true);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);

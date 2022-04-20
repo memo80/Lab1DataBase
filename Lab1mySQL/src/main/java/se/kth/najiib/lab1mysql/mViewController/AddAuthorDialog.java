@@ -22,6 +22,7 @@ public class AddAuthorDialog extends Dialog<Author>{
     private final TextField dobField = new TextField();
     private final TextField dobField1 = new TextField();
     private final TextField dobField2 = new TextField();
+    private String date2=null;
 
     public AddAuthorDialog(){
         buildAddAuthorDialog();
@@ -68,27 +69,22 @@ public class AddAuthorDialog extends Dialog<Author>{
             @Override
             public Author call(ButtonType b) {
                 Author result = null;
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-
-                int year1= Integer.parseInt(dobField2.getText())-1900;
-                int month1=Integer.parseInt(dobField1.getText())-1;
-                int dd1= Integer.parseInt(dobField.getText());
-
-                // Kan göra Author author fixa 3 st field som rating och sedan lägga in varsin ruta
-
-                String date2 =formatter.format(new Date(year1,month1,dd1));
-
-
                 if (b == buttonTypeOk) {
                     if (isValidData()) {
+                        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                        int year1= Integer.parseInt(dobField2.getText())-1900;
+                        int month1=Integer.parseInt(dobField1.getText())-1;
+                        int dd1= Integer.parseInt(dobField.getText());
+                        // Kan göra Author author fixa 3 st field som rating och sedan lägga in varsin ruta
+                        //String date2 =formatter.format(new Date(year1,month1,dd1));
+                        date2 =formatter.format(new Date(year1,month1,dd1));
                         result = new Author(
                                 authorIDField.getText(),
                                 nameField.getText(),
-                                date2,
-                                ISBNField.getText());
+                                date2.toString());
                     }
+                    result.isbnWrite(ISBNField.getText()); //kopplar ihop med en bok med författare
                 }
-
                 clearFormData();
                 return result;
             }
@@ -110,14 +106,41 @@ public class AddAuthorDialog extends Dialog<Author>{
     }
 
     private boolean isValidData() {
+
         if (authorIDField.getText() == null) {
+            return false;
+        }
+
+        if (authorIDField.getText().isEmpty())
+        {
             return false;
         }
         if (nameField.getText().isEmpty()) {
             System.out.println(nameField.getText());
             return false;
         }
-        // if(...) - keep on validating user input...
+
+
+        if (ISBNField.getText().isEmpty())
+        {
+            return false;
+        }
+
+       if(dobField.getText().isEmpty())
+       {
+           return false;
+       }
+
+        if(dobField1.getText().isEmpty())
+        {
+            return false;
+        }
+        if(dobField2.getText().isEmpty())
+        {
+            return false;
+        }
+
+
 
         return true;
     }
@@ -125,6 +148,10 @@ public class AddAuthorDialog extends Dialog<Author>{
     private void clearFormData() {
         authorIDField.setText("");
         nameField.setText("");
+        ISBNField.setText("");
+        dobField.setText("");
+        dobField1.setText("");
+        dobField2.setText("");
 
     }
 

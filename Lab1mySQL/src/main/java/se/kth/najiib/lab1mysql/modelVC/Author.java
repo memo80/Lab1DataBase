@@ -9,15 +9,15 @@ import java.util.List;
 public class Author {
     private String fullName;
     private String authorIDs;
-    private ArrayList<Book> books;
+   // private ArrayList<Book> books;
     private String ISBN;
     private String dob;
 
-    public Author(String authorIDs, String fullName ,String dob, String ISBN){
+    public Author(String authorIDs, String fullName ,String dob){
 
         this.fullName = fullName;
-        this.books = new ArrayList<>();
-        this.ISBN = ISBN;
+        //this.books = new ArrayList<>();
+
         this.authorIDs = authorIDs;
         this.dob=dob;
 
@@ -27,9 +27,7 @@ public class Author {
         return ISBN;
     }
 
-    public List<Book> getBooks(){
-        return (List<Book>) books.clone();
-    }
+
     /** this method obtains authorID of an author
      *
      * @return authorID of an author
@@ -50,11 +48,16 @@ public class Author {
         return fullName;
     }
 
+    public void isbnWrite(String isbn)
+    {
+        this.ISBN=isbn;
+    }
+
     @Override
     public String toString() {
         return "ID: "+authorIDs + "  "+
                 "name:" + fullName +
-                " dob: " + dob;
+                " dob: " + dob+"\n";
 
     }
 }

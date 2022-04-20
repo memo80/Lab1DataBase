@@ -33,16 +33,11 @@ public class AddBookDialog extends Dialog<Book>{
     private final TextField titleField = new TextField();
     private final TextField isbnField = new TextField();
     private final TextField ratingField = new TextField();
-    private final TextField nameField = new TextField();
-    private final TextField dobField = new TextField();
-    private final TextField dob1Field = new TextField();
-    private final TextField dob2Field = new TextField();
-    private final TextField IDField = new TextField();
     private final TextField publishedField = new TextField();
     private final TextField mmField = new TextField();
     private final TextField yyyyField = new TextField();
     private String date1=null;
-    private String date2=null;
+
 
 
     private final ComboBox<Genre> genreChoice = new ComboBox(FXCollections.observableArrayList(Genre.values()));
@@ -72,22 +67,12 @@ public class AddBookDialog extends Dialog<Book>{
         grid.add(genreChoice, 2, 3);
         grid.add(new Label("Rating "), 1, 4);
         grid.add(ratingField, 2, 4);
-        grid.add(new Label("AuthorID"), 1, 5);
-        grid.add(IDField, 2, 5);
-        grid.add(new Label("Author Name"), 1, 6);
-        grid.add(nameField, 2, 6);
-        grid.add(new Label("dob"), 1, 7);
-        grid.add(dobField, 2, 7);
-        grid.add(new Label("mm"), 3, 7);
-        grid.add(dob1Field, 4, 7);
-        grid.add(new Label("yyyy"), 5, 7);
-        grid.add(dob2Field, 6, 7);
-        grid.add(new Label("published dd"), 1, 8);
-        grid.add(publishedField, 2, 8);
-        grid.add(new Label("mm"), 3, 8);
-        grid.add(mmField, 4, 8);
-        grid.add(new Label("yyyy"), 5, 8);
-        grid.add(yyyyField, 6, 8);
+        grid.add(new Label("published dd"), 1, 5);
+        grid.add(publishedField, 2, 5);
+        grid.add(new Label("mm"), 3, 5);
+        grid.add(mmField, 4, 5);
+        grid.add(new Label("yyyy"), 5, 5);
+        grid.add(yyyyField, 6, 5);
 
 
 
@@ -113,19 +98,15 @@ public class AddBookDialog extends Dialog<Book>{
                 if (b == buttonTypeOk) {
                     if (isValidData()) {
                         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-                        int year1= Integer.parseInt(dob2Field.getText())-1900;
-                        int month1=Integer.parseInt(dob1Field.getText())-1;
-                        int dd1= Integer.parseInt(dobField.getText());
+
                         // Kan göra Author author fixa 3 st field som rating och sedan lägga in varsin ruta
-                        date2 =formatter.format(new Date(year1,month1,dd1));
-                        Author at=new Author(IDField.getText(),nameField.getText(),date2,isbnField.getText());
                         int year= Integer.parseInt(yyyyField.getText())-1900;
                         int month=Integer.parseInt(mmField.getText())-1;
                         int dd= Integer.parseInt(publishedField.getText());
 
                         // Kan göra Author author fixa 3 st field som rating och sedan lägga in varsin ruta
                         date1 =formatter.format(new Date(year,month,dd));
-                        result = new Book(titleField.getText(), isbnField.getText(), genreChoice.getValue(),Integer.parseInt(ratingField.getText()), date1, at);
+                        result = new Book(titleField.getText(), isbnField.getText(), genreChoice.getValue(),Integer.parseInt(ratingField.getText()), date1);
                     }
                 }
 
@@ -167,6 +148,27 @@ public class AddBookDialog extends Dialog<Book>{
             return false;
         }
 
+        if (ratingField.getText().isEmpty())
+        {
+            return false;
+        }
+
+
+        if (publishedField.getText().isEmpty())
+        {
+            return false;
+        }
+
+       if (mmField.getText().isEmpty())
+        {
+            return false;
+        }
+        if (yyyyField.getText().isEmpty())
+        {
+            return false;
+        }
+
+
         return true;
     }
 
@@ -175,12 +177,7 @@ public class AddBookDialog extends Dialog<Book>{
         isbnField.setText("");
         genreChoice.setValue(null);
         ratingField.setText("");
-        nameField.setText("");
-        IDField.setText("");
         publishedField.setText("");
-        dobField.setText("");
-        dob1Field.setText("");
-        dob2Field.setText("");
         mmField.setText("");
         yyyyField.setText("");
     }
